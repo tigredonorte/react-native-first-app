@@ -1,57 +1,57 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Button, FlatList, View } from 'react-native';
 import { styles } from './App.styles';
 import { GoalInputComponent, GoalItemComponent } from './src/Goal/index';
-
 
 interface Item {
   id: string;
   text: string;
 }
-const initialState: Item[] = [];
 
-export default function App() {
+interface AppState {
+  goals: Item[];
+  isVisible: boolean;
+}
 
-  const [ getGoals, setGoals ] = useState(initialState);
-  const [ getIsVisible, setIsVisible ] = useState(false);
+const initialState: AppState = {
+  goals: [],
+  isVisible: false
+};
 
+export default class App extends React.Component<{}, AppState> {
 
-  const appendText = (getGoalInput: string): void => {
-    setGoals(
-      current => [{ id: `${getGoals.length + 1}`, text: getGoalInput }, ...current ]
-    );
-    setIsVisible(false);
-  };
-
-  const removeGoal = (id: string) => {
-    setGoals(
-      (goals: Item[]) => goals.filter(goal => goal.id !== id)
-    );
+  public constructor(props: any) {
+    super(props);
+    this.state = { ...initialState };
   }
 
-  const cancelGoal = () => {
-    setIsVisible(false);
-  }
-  
-  return (
+  private removeGoal = (id: string) => this.setState({ goals: this.state.goals.filter(goal => goal.id !== id) });
+  private cancelGoal = () => this.setState({ isVisible: false });
+  private setIsVisible = () => this.setState({ isVisible: true });
+  private appendText = (getGoalInput: string): void => this.setState({ 
+    goals: [{ id: `${this.state.goals.length + 1}`, text: getGoalInput }, ...this.state.goals ],
+    isVisible: false
+  });
+
+  public render = (): React.ReactNode => (
     <View style={styles.container}>
-      <Button title="Add Itens" onPress={()=>setIsVisible(true)}/>
+      <Button title="Add Itens" onPress={()=>this.setIsVisible()}/>
       <GoalInputComponent 
-        isVisible={getIsVisible} 
-        onAppendText={appendText}
-        onCancelGoal={cancelGoal}
+        isVisible={this.state.isVisible} 
+        onAppendText={this.appendText}
+        onCancelGoal={this.cancelGoal}
       />
       <FlatList
         keyExtractor={(item: Item) => item.id}
         style={styles.itemsContainer}
-        data={getGoals}
+        data={this.state.goals}
         renderItem={itemData => 
           <GoalItemComponent 
             title={itemData.item.text}
-            onDelete={() => removeGoal(itemData.item.id) }
+            onDelete={() => this.removeGoal(itemData.item.id) }
             
           />
         } />
     </View>
-  )
+  );
 }

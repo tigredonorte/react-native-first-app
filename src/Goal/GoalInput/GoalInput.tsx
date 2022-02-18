@@ -14,6 +14,9 @@ export const GoalInputComponent = (props: GoalInput) => {
     const [ getGoalInput, setGoalInput ] = useState('');
 
     const addGoalHandler = () => {
+        if (getGoalInput === '') {
+            return;
+        }
         props.onAppendText(getGoalInput);
         setGoalInput('');
     };
